@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="">
+
+    <!--favicon icon-->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>Ubicación</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link type="text/css" href="inc/bootstrap/css/bootstrap.css" rel="stylesheet" />
+	<link type="text/css" href="assets/css/w3.css" rel="stylesheet" />
+	<script src="inc/js/jquery-1.11.2.min.js"></script>
+	<script src="inc/bootstrap/js/bootstrap.min.js"></script>
+	<script src="assets/js/w3.js"></script>
+	<script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+	<link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	<style>
+		#map-container{
+			width:100%;
+			min-height: 97vh;
+			margin:2px; 
+			background-color:#dfdfdf;
+			box-shadow: 2px 4px 4px gray;			
+		}
+
+		select{
+			padding:1em;
+			margin:0.5em;
+		}
+	</style>
+
+
+	<script type="text/javascript">
+
+//Datos de prueba
+
+var dataAlertas = {"user":0,"records":[
+	{
+		"lat":			19.432535,
+		"long":			-99.177107,
+		"fecha":		"12/04/2019",
+		"nombre": 		"José Pérez",
+		"ubicacion":	"Anzures 11590",
+		"dircasa":		"Anzures 11590",
+		"dirtrabajo":	"Anzures 11590",
+		
+	},
+	{
+		"lat":			19.456837,
+		"long":			-99.188725,
+		"fecha":		"06/05/2019",
+		"nombre": 		"Miguel Rodriguez",
+		"ubicacion":	"Marina Nacional 11410",
+		"dircasa":		"Benito Juárez 18",
+		"dirtrabajo":	"Mirador 23",
+	},
+	{
+		"lat":			19.347370,
+		"long":			-99.170556,
+		"fecha":		"23/05/2019",
+		"nombre": 		"Roberto Sánchez",
+		"ubicacion":	"Dulce Oliva 73",
+		"dircasa":		"Cuauhtémoc 31",
+		"dirtrabajo":	"Uxmal 787",
+
+	}
+	]};
+
+
+var camaras = [
+	[
+		{
+		"lat":19.432434, 
+		"long":-99.177246, 
+		"codigo":123456789,
+		"ubicacion":"Gutemberg 147"
+		},
+		
+		{
+		"lat":19.433031, 
+		"long":-99.176817, 
+		"codigo":123456753,
+		"ubicacion":"Lafayette 26"
+		}
+	],
+	[
+		{
+		"lat":19.457636, 
+		"long":-99.188811,  
+		"codigo":127436753,
+		"ubicacion":"Golfo de Bengala S/N"
+		},
+		{
+		"lat":19.457849, 
+		"long":-99.189363,   
+		"codigo":627436553,
+		"ubicacion":"Lago Guija 22"
+		},
+		{
+		"lat":19.456767,  
+		"long":-99.188559,   
+		"codigo":127436753,
+		"ubicacion":"Mar negro 26"
+		}
+	],
+	[
+		{
+		"lat":19.347289, 
+		"long":-99.169934,   
+		"codigo":322436743,
+		"ubicacion":"Pino 78"
+		},
+		{
+		"lat":19.347490, 
+		"long":-99.171776,    
+		"codigo":512112343,
+		"ubicacion":"Dulce Oliva 72"
+		},
+		{
+		"lat":19.345820, 
+		"long":-99.172001,    
+		"codigo":921432754,
+		"ubicacion":"M. A. de Quevedo 432"
+		},
+		{
+		"lat":19.347187, 
+		"long":-99.169104,     
+		"codigo":803442558,
+		"ubicacion":"Ayuntamiento 64"
+		}
+	]
+];
+
+var dataCamaras = null;
+
+var map = null;
+var markers = [];
+var updateTime = 10000;	//Update time, miliseconds
+
+var lat = 19.432601800;
+var lng = -99.133204900;
+
+$(document).ready(function() {
+	init_map();
+	/*setInterval(function(){updatePage(true);}, updateTime);*/
+	w3.displayObject("alertTbl", dataAlertas);
+});
+
+var alertlat = null, alertlon = null;
+var y = 0.001;
+
+var alertIcon = 'img/location.png';
+var cameraIcon = 'img/camera.png';
+var cameraBIcon = 'img/camerabig.png';
+
+
+function selAlert(lat, lon){
+	map.getLayers().item(1).getSource().clear();
+	putMarker(0, lat+"-"+lon, lat, lon, alertIcon);
+	alertlat = lat; alertlon=lon;
+	
+	resizeView();
+	var cam = getCamarasCerca(lat, lon);
+	dataCamaras = {"user":0};
+	dataCamaras["records"] = cam;
+	
+	w3.displayObject("camarasTbl", dataCamaras);
+	document.getElementById("camcard").style.display="block";
+}
+
+function getCamarasCerca(lat, lon){
+	if(lat==19.432535 && lon ==-99.177107) return camaras[0];
+	if(lat==19.456837 && lon ==-99.188725) return camaras[1];
+	if(lat==19.347370 && lon ==-99.170556) return camaras[2];
+}
+
+
+function verCamaras(){
+	var cctl =  document.getElementsByName("chkcam");
+	map.getLayers().item(1).getSource().clear();
+	putMarker(0, alertlat+"-"+alertlon, alertlat, alertlon, alertIcon);
+	for(var i=0; i<cctl.length; i++){
+		if(cctl[i].checked) putMarker(i+1, "not defined", cctl[i].getAttribute("data-camlat"), cctl[i].getAttribute("data-camlon"), cameraIcon);		
+	}
+}
+
+function verCamarasTodas(){
+	var cctl =  document.getElementsByName("chkcam");
+	for(var i=0; i<cctl.length; i++){
+		cctl[i].checked=true;
+	}
+	verCamaras();
+	resizeView();
+}
+
+
+function resaltaCamara(camrow){
+	verCamaras();
+	var cctl = camrow.querySelector('[name="chkcam"]');
+	if(cctl.checked){
+		putMarker(100, "not defined", cctl.getAttribute("data-camlat"), cctl.getAttribute("data-camlon"), cameraBIcon);
+	}
+}
+
+function putMarker(id, name, lat, lon, icon) {
+	if(map!=null) {
+		var x = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([Number(lon), Number(lat)])));
+		//x.setId(id);
+		x.setStyle(new ol.style.Style({
+			image: new ol.style.Icon({
+				src: icon,
+				scale: 1.0
+			})
+		}));
+
+		map.getLayers().item(1).getSource().addFeature(x);
+	}	
+}
+
+function resizeView(){
+	var extent = map.getLayers().item(1).getSource().getExtent();
+	map.getView().fit(extent, map.getSize());
+	if(map.getView().getZoom()>20) map.getView().setZoom(14);
+}
+
+function init_map() {
+	var markersLocations = new ol.source.Vector();
+	var markersLayer = new ol.layer.Vector({
+		source: markersLocations
+	});
+
+	var streetmap = new ol.layer.Tile({
+		source: new ol.source.OSM(),
+		opacity: 1.0
+	});
+
+	var view = new ol.View({
+		center: ol.proj.fromLonLat([lng, lat]),
+		zoom: 12,
+		minZoom: 6,
+        maxZoom: 22
+	});
+
+	map = new ol.Map({
+		layers: [streetmap, markersLayer],
+		target: 'map-container',
+		view: view,
+		loadTilesWhileInteracting: true
+	});	
+	
+}
+
+
+
+
+</script>
+
+
+</head>
+
+<body>
+
+	<div class="container-fluid">
+		<div class="row">
+				<div id="map-container"></div>	
+		</div>
+	</div>
+	
+	<div class="w3-container" style="position:absolute; top:0; right:0; width: 40vw; z-index:1000;">
+		<div class="row">
+			  <div class="w3-card-4 w3-white" style="margin:8px; font-size:0.75em;">
+				<header class="w3-container w3-light-grey">
+				  <h5>Alertas</h5>
+				</header>
+				<div class="w3-container" style="margin:8px;">
+					<div class="row">
+						<div class="col-6">
+							<span>Desde&nbsp;<input type="date" name="desde"></span>
+						</div>
+						<div class="col-6">
+							<span>Hasta&nbsp;<input type="date" name="hasta"></span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12" style="text-align:center"><button type="button" style="margin-top:8px; margin-bottom:8px;">Filtrar</button></div>
+					</div>
+				  <hr>
+					  <table class="w3-table-all w3-hoverable">
+						
+						  <tr class="w3-light-grey">
+							<th>&nbsp;</th>
+							<th onclick="w3.sortHTML('#alertTbl', '.item', 'td:nth-child(2)')" style="cursor:pointer">Fecha</th>
+							<th onclick="w3.sortHTML('#alertTbl', '.item', 'td:nth-child(3)')" style="cursor:pointer">Nombre</th>
+							<th onclick="w3.sortHTML('#alertTbl', '.item', 'td:nth-child(4)')" style="cursor:pointer">Ubicación</th>
+							<th onclick="w3.sortHTML('#alertTbl', '.item', 'td:nth-child(5)')" style="cursor:pointer">Dir. Casa</th>
+							<th onclick="w3.sortHTML('#alertTbl', '.item', 'td:nth-child(6)')" style="cursor:pointer">Dir. Trabajo</th>
+						  </tr>
+						
+						<tbody id="alertTbl" >
+							<tr w3-repeat="records" class="item">
+								<td><button type="button" onclick="selAlert({{lat}},{{long}});"><i class="fa fa-eye"></i></button></td>
+								<td>{{fecha}}</td>
+								<td>{{nombre}}</td>
+								<td>{{ubicacion}}</td>
+								<td>{{dircasa}}</td>
+								<td>{{dirtrabajo}}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			  </div>
+		</div>
+	<div class="row">
+			<div class="col-12">
+			  <div id="camcard" class="w3-card-4 w3-white" style="margin:8px; font-size:0.75em; display:none"">
+				<header class="w3-container w3-light-grey">
+				  <h4>Cámaras</h4>
+				</header>
+				<div class="w3-container" style="margin:8px;">
+				  <p><button type="button" onclick="verCamarasTodas();">Ver todas</button>&nbsp;<button type="button" onclick="verCamaras();">Ver selección</button></p>
+				  <hr>
+					<table class="w3-table-all w3-hoverable">
+
+						  <tr class="w3-light-grey">
+							<th>nbsp</th>
+							<th>Código de barras</th>
+							<th>Ubicación</th>
+						  </tr>
+
+						<tbody id="camarasTbl">
+							<tr class="item" w3-repeat="records" onmouseover="resaltaCamara(this);" onmouseout="verCamaras();">
+								<td><input type="checkbox" name="chkcam" data-camlat="{{lat}}" data-camlon="{{long}}"></td>
+								<td>{{codigo}}</td>
+								<td>{{ubicacion}}</td>
+							</tr>
+						</tbody>
+					</table>
+					<br>
+				</div>
+			  </div>
+		  </div>
+		</div>
+	</div>
+	
+
+</body>
+</html>
+

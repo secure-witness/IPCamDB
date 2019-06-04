@@ -1,0 +1,242 @@
+@CHARSET "UTF-8";
+
+body {
+	/*background-color: #555555; */
+	background-color: black;
+}
+
+#map-container {
+	bottom: 0;
+	height: 95vh;
+	min-height: 320px;
+    right: 0px;
+    top: 0px;
+    overflow: hidden;
+	background-color: white;
+}
+
+p {
+	margin: 2px;
+}
+
+#pan {
+	width: 200px;
+	height: 150px;
+	border: 1px solid black;
+	margin: auto;
+	
+}
+
+.navbar {
+	min-height: 30px;
+	margin: 0;
+}
+
+.infotable {
+    top: 0px;
+    bottom: 0;
+    right: 0;
+    height: 95vh;
+    max-height: 95vh;
+    color: white;
+	background-color: #000621;
+}
+
+#infotable {
+	overflow-y: auto;
+	height: 80vh;
+    max-height: 80vh;
+    min-height: 320px;
+}
+
+#fecha-corta{
+	display: inline-block;
+}
+
+.main-container {
+	max-height: 100vh;
+	max-width: 100vw;
+	overflow: hidden;
+}
+
+.infobar, .infotable {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+.small-font {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10px;
+}
+
+.infobar {
+	height: 30px;
+	background-color: black;
+	color: white;
+	padding-top: 0.6em;
+}
+
+
+
+.infobar #usuario {
+	font-weight: bold;
+	padding-left: 2em;
+}
+
+.infoheaders {
+	height: 5vh;
+	max-height: 5vh;
+	background-color: grey;
+	padding: 0;
+}
+
+table {
+	width: 100%;
+}
+
+td {
+	text-align: center;
+	overflow: hidden;
+}
+
+.layout-table {
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+.help-div {
+	border: 1px solid black;
+	background-color: rgb(255,127,127);
+}
+.help-div:hover {
+	cursor: pointer;
+	opacity: 0.8;
+	border: 1px solid red;
+}
+
+td *{
+	margin: auto;
+}
+
+dialog{
+	text-align: justify;
+	overflow: auto;
+}
+
+.evenrow{
+	background: rgba(255,255,255,0.05);
+	border: solid 1px black;
+}
+
+.oddrow{
+	background: rgba(255,255,255,0.1);
+	border: solid 1px black;
+}
+
+.infoitem, .infoitem:link, .infoitem:active, .infoitem:visited {
+	color: white;
+}
+
+.infoitem:hover {
+	color: #ff9999;
+	cursor: pointer;
+}
+
+.oddrow:hover, .evenrow:hover{
+	border: 1px solid red;
+}
+
+.white-link, .white-link:link, .white-link:visited, .white-link:active{
+	color: white;
+	text-decoration: none;
+}
+
+.white-link:hover{
+	color: blue;
+	text-decoration: none;
+}
+
+.icon-tel {
+    background-image: url("../../img/icon/tel.png");
+    background-position: center center;
+    height: 16px;
+    width: 16px;
+}
+
+.icon-config {
+    background-image: url("../../img/icon/config.png");
+    background-position: center center;
+    height: 16px;
+    width: 16px;
+}
+
+.icon-inform {
+    background-image: url("../../img/icon/informe.png");
+    background-position: center center;
+    height: 16px;
+    width: 16px;
+}
+
+.icon-help {
+    background-image: url("../../img/icon/help.png");
+    background-position: center center;
+    height: 16px;
+    width: 16px;
+}
+
+.infowin {
+	padding: 6px;
+	max-height: 10em;
+	max-widht: 20em;
+	overflow-y: scroll;
+}
+
+.marco {
+	border-color: #dddddd;
+	border-style: inset;
+}
+
+/*********** Openlayers popup *****************/
+ .ol-popup {
+	position: absolute;
+	background-color: white;
+	-webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+	filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+	padding: 15px;
+	border-radius: 10px;
+	border: 1px solid #cccccc;
+	bottom: 12px;
+	left: -50px;
+	min-width: 280px;
+  }
+  .ol-popup:after, .ol-popup:before {
+	top: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+  }
+  .ol-popup:after {
+	border-top-color: white;
+	border-width: 10px;
+	left: 48px;
+	margin-left: -10px;
+  }
+  .ol-popup:before {
+	border-top-color: #cccccc;
+	border-width: 11px;
+	left: 48px;
+	margin-left: -11px;
+  }
+  .ol-popup-closer {
+	text-decoration: none;
+	position: absolute;
+	top: 2px;
+	right: 8px;
+  }
+  .ol-popup-closer:after {
+	content: "✖";
+  }

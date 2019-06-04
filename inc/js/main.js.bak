@@ -1,0 +1,209 @@
+var map = null;
+var markers = [];
+var actinfo = null;		//Active info window
+var updateTime = 1000;	//Update time, miliseconds
+var panorama;
+var popup = null;
+var units = [];
+var clockUpdTime = 800;
+
+$(document).ready(function() {
+	//Actualización de reloj
+	setInterval(updateClock(), clockUpdTime);
+	//Actualización de tabla de información de objetivos
+	updatePage(true);
+	init_gauges();
+	init_map();
+});
+
+function updatePage(isInit) {
+	var datarequest, lights;
+
+	datarequest = createAjaxRequest();
+	datarequest.onreadystatechange = function() {
+		if (datarequest.readyState == 4 && datarequest.status == 200) {
+			var jUnits = JSON.parse(datarequest.responseText);
+			for (var i = 0, len = jUnits.length; i<len; i++) {
+  				putMarker(jUnits[i].id, jUnits[i].id, jUnits[i].lat, jUnits[i].lon, 'images/meter-o.png');
+			}
+			updatePopup(jUnits[0]);
+			if(isInit) resizeView();
+
+			setTimeout(updatePage, updateTime, false);
+		}
+	};
+	datarequest.open("GET", "inc/punits.php", true);
+	datarequest.send();
+}
+
+function updatePopup(jUnit){
+	document.getElementById("panel-name").innerHTML = jUnit.id;
+	document.getElementById("panel-time").innerHTML = jUnit.time;
+	document.getElementById("panel-int").innerHTML = jUnit.int;
+	document.getElementById("panel-flag").innerHTML = jUnit.flag;
+	document.getElementById("panel-lat").innerHTML = Number(jUnit.lat).toFixed(6);
+	document.getElementById("panel-lon").innerHTML = Number(jUnit.lon).toFixed(6);
+	var i = 0;
+	for (var key in getGaugesCollection()){
+		var value = Number(jUnit.signal[i]);
+		getGauge(key).redraw(value);
+		document.getElementsByName("lcdv")[i].innerHTML = " "+value.toFixed(3)+" ";
+		i++;
+	}	
+}
+
+function updateMarkers(){
+}
+
+//Show street view
+function openStreetView(lat, lon) {
+	var dataUrl = 'http://cbk0.google.com/cbk?output=json&ll=' + lat + ',' + lon + '&';
+	$.ajax({
+		url: dataUrl,
+		dataType: 'jsonp',
+		data: {}
+	})
+	.done(function(data) {
+		if (data && data.Location && data.Location.panoId) {
+			var url = 'http://maps.google.com/maps?layer=c&cbp=0,,,,0&panoid=' + data.Location.panoId;
+			window.open(url, "_self");
+		} else {
+			alert('Street view could not allocate position.');
+		}
+	})
+	.fail(function(jqXHR, textStatus, errorThrown) {
+		alert('Street view - fail() \n textStatus: ' + textStatus + '\n errorThrown: ' + errorThrown);
+	});
+}
+
+/****************************************************************************************
+					Open layer map implementation
+****************************************************************************************/
+function putMarker(id, name, lat, lon, icon) {
+	if (map != null) {
+		var x = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([Number(lon), Number(lat)])));
+		x.setId(id);
+		x.setStyle(new ol.style.Style({
+			image: new ol.style.Icon({
+				src: icon,
+				scale: 1.0
+			})
+		}));
+		map.getLayers().item(1).getSource().addFeature(x);
+	}	
+}
+
+function putMarker(id, name, lat, lon, icon) {
+	if (map != null) {
+		var x = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([Number(lon), Number(lat)])));
+		x.setId(id);
+		x.setStyle(new ol.style.Style({
+			image: new ol.style.Icon({
+				src: icon,
+				scale: 1.0
+			})
+		}));
+		map.getLayers().item(1).getSource().addFeature(x);
+	}	
+}
+
+function resizeView(){
+	var extent = map.getLayers().item(1).getSource().getExtent();
+	map.getView().fit(extent, map.getSize());
+}
+
+function init_map() {
+	var markersLocations = new ol.source.Vector();
+	var markersLayer = new ol.layer.Vector({
+		source: markersLocations,
+		style: new ol.style.Style({
+			image: new ol.style.Icon({
+				src: 'img/units/car/on/e.gif',
+				scale: 1.0
+			})
+		})
+	});
+
+	var streetmap = new ol.layer.Tile({
+		source: new ol.source.OSM(),
+		opacity: 0.75
+	});
+
+	var view = new ol.View({
+		center: ol.proj.fromLonLat([-99.133204900, 19.432601800]),
+		zoom: 16,
+		minZoom: 4,
+        maxZoom: 19
+	});
+
+	var overlay = new ol.Overlay({
+		element: document.getElementById('overlay')
+	});
+	
+	popup=overlay;
+
+	//var map = new ol.Map({
+	map = new ol.Map({
+		layers: [streetmap, markersLayer],
+		target: 'map-container',
+		view: view,
+		loadTilesWhileInteracting: true
+	});
+	map.addOverlay(overlay);
+
+	map.on('click', function(e) {
+		overlay.setPosition();
+		var features = map.getFeaturesAtPixel(e.pixel);
+
+		if (features) {
+			var coords = features[0].getGeometry().getCoordinates();
+			var degrees = ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
+			var hdms = ol.coordinate.toStringHDMS(degrees);
+			overlay.setPosition(coords);
+		}
+	});
+	updateMarkers();
+}
+
+/**
+* Add a click handler to hide the popup.
+* @return {boolean} Don't follow the href.
+*/
+function closePopup() {
+	popup.setPosition(undefined);
+	return false;
+};
+
+/******************************************************************************
+	GAUGES AND CONTROLS
+******************************************************************************/
+function createGauges()
+{
+	createGauge("sgn0", "Signal 0", 40);
+	createGauge("sgn1", "Signal 1", 40);
+	createGauge("sgn2", "Signal 2", 40);
+	createGauge("sgn3", "Signal 3", 40);
+}
+
+function updateGauges()
+{
+	var i=0;
+	for (var key in getGaugesCollection())
+	{
+		var value = getRandomValue(getGauge(key))
+		getGauge(key).redraw(value);
+		document.getElementsByName("lcdv")[i].innerHTML = " "+value.toFixed(3)+" ";
+		i++;
+	}
+}
+
+function getRandomValue(gauge)
+{
+	var overflow = 0; //10;
+	return gauge.config.min - overflow + (gauge.config.max - gauge.config.min + overflow*2) *  Math.random();
+}
+
+function init_gauges()
+{
+	createGauges();
+}
