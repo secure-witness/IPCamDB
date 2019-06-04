@@ -7,7 +7,7 @@
 
     <!--favicon icon-->
     <link rel="icon" type="image/png" href="favicon.png">
-    <title>Ubicación</title>
+    <title>SWPanicButtonMonitor</title>
 
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link type="text/css" href="inc/bootstrap/css/bootstrap.css" rel="stylesheet" />
@@ -23,9 +23,9 @@
 		#map-container{
 			width:100%;
 			min-height: 97vh;
-			margin:2px; 
+			margin:2px;
 			background-color:#dfdfdf;
-			box-shadow: 2px 4px 4px gray;			
+			box-shadow: 2px 4px 4px gray;
 		}
 
 		select{
@@ -48,7 +48,7 @@ var dataAlertas = {"user":0,"records":[
 		"ubicacion":	"Anzures 11590",
 		"dircasa":		"Anzures 11590",
 		"dirtrabajo":	"Anzures 11590",
-		
+
 	},
 	{
 		"lat":			19.456837,
@@ -75,61 +75,61 @@ var dataAlertas = {"user":0,"records":[
 var camaras = [
 	[
 		{
-		"lat":19.432434, 
-		"long":-99.177246, 
+		"lat":19.432434,
+		"long":-99.177246,
 		"codigo":123456789,
 		"ubicacion":"Gutemberg 147"
 		},
-		
+
 		{
-		"lat":19.433031, 
-		"long":-99.176817, 
+		"lat":19.433031,
+		"long":-99.176817,
 		"codigo":123456753,
 		"ubicacion":"Lafayette 26"
 		}
 	],
 	[
 		{
-		"lat":19.457636, 
-		"long":-99.188811,  
+		"lat":19.457636,
+		"long":-99.188811,
 		"codigo":127436753,
 		"ubicacion":"Golfo de Bengala S/N"
 		},
 		{
-		"lat":19.457849, 
-		"long":-99.189363,   
+		"lat":19.457849,
+		"long":-99.189363,
 		"codigo":627436553,
 		"ubicacion":"Lago Guija 22"
 		},
 		{
-		"lat":19.456767,  
-		"long":-99.188559,   
+		"lat":19.456767,
+		"long":-99.188559,
 		"codigo":127436753,
 		"ubicacion":"Mar negro 26"
 		}
 	],
 	[
 		{
-		"lat":19.347289, 
-		"long":-99.169934,   
+		"lat":19.347289,
+		"long":-99.169934,
 		"codigo":322436743,
 		"ubicacion":"Pino 78"
 		},
 		{
-		"lat":19.347490, 
-		"long":-99.171776,    
+		"lat":19.347490,
+		"long":-99.171776,
 		"codigo":512112343,
 		"ubicacion":"Dulce Oliva 72"
 		},
 		{
-		"lat":19.345820, 
-		"long":-99.172001,    
+		"lat":19.345820,
+		"long":-99.172001,
 		"codigo":921432754,
 		"ubicacion":"M. A. de Quevedo 432"
 		},
 		{
-		"lat":19.347187, 
-		"long":-99.169104,     
+		"lat":19.347187,
+		"long":-99.169104,
 		"codigo":803442558,
 		"ubicacion":"Ayuntamiento 64"
 		}
@@ -163,12 +163,12 @@ function selAlert(lat, lon){
 	map.getLayers().item(1).getSource().clear();
 	putMarker(0, lat+"-"+lon, lat, lon, alertIcon);
 	alertlat = lat; alertlon=lon;
-	
+
 	resizeView();
 	var cam = getCamarasCerca(lat, lon);
 	dataCamaras = {"user":0};
 	dataCamaras["records"] = cam;
-	
+
 	w3.displayObject("camarasTbl", dataCamaras);
 	document.getElementById("camcard").style.display="block";
 }
@@ -185,7 +185,7 @@ function verCamaras(){
 	map.getLayers().item(1).getSource().clear();
 	putMarker(0, alertlat+"-"+alertlon, alertlat, alertlon, alertIcon);
 	for(var i=0; i<cctl.length; i++){
-		if(cctl[i].checked) putMarker(i+1, "not defined", cctl[i].getAttribute("data-camlat"), cctl[i].getAttribute("data-camlon"), cameraIcon);		
+		if(cctl[i].checked) putMarker(i+1, "not defined", cctl[i].getAttribute("data-camlat"), cctl[i].getAttribute("data-camlon"), cameraIcon);
 	}
 }
 
@@ -219,7 +219,7 @@ function putMarker(id, name, lat, lon, icon) {
 		}));
 
 		map.getLayers().item(1).getSource().addFeature(x);
-	}	
+	}
 }
 
 function resizeView(){
@@ -251,8 +251,8 @@ function init_map() {
 		target: 'map-container',
 		view: view,
 		loadTilesWhileInteracting: true
-	});	
-	
+	});
+
 }
 
 
@@ -267,10 +267,10 @@ function init_map() {
 
 	<div class="container-fluid">
 		<div class="row">
-				<div id="map-container"></div>	
+				<div id="map-container"></div>
 		</div>
 	</div>
-	
+
 	<div class="w3-container" style="position:absolute; top:0; right:0; width: 40vw; z-index:1000;">
 		<div class="row">
 			  <div class="w3-card-4 w3-white" style="margin:8px; font-size:0.75em;">
@@ -291,7 +291,7 @@ function init_map() {
 					</div>
 				  <hr>
 					  <table class="w3-table-all w3-hoverable">
-						
+
 						  <tr class="w3-light-grey">
 							<th>&nbsp;</th>
 							<th onclick="w3.sortHTML('#alertTbl', '.item', 'td:nth-child(2)')" style="cursor:pointer">Fecha</th>
@@ -300,7 +300,7 @@ function init_map() {
 							<th onclick="w3.sortHTML('#alertTbl', '.item', 'td:nth-child(5)')" style="cursor:pointer">Dir. Casa</th>
 							<th onclick="w3.sortHTML('#alertTbl', '.item', 'td:nth-child(6)')" style="cursor:pointer">Dir. Trabajo</th>
 						  </tr>
-						
+
 						<tbody id="alertTbl" >
 							<tr w3-repeat="records" class="item">
 								<td><button type="button" onclick="selAlert({{lat}},{{long}});"><i class="fa fa-eye"></i></button></td>
@@ -346,8 +346,7 @@ function init_map() {
 		  </div>
 		</div>
 	</div>
-	
+
 
 </body>
 </html>
-
